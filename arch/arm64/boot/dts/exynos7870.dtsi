@@ -1837,6 +1837,7 @@
 		clocks = <&clock 640>,
 				<&clock 641>,
 				<&clock 642>;
+		status = "disabled";
 	};
 
 	fimc_is: fimc_is@14400000 {

@@ -486,17 +486,25 @@ int fimc_is_vender_dt(struct device_node *np)
 
 	ret = of_property_read_u32(np, "max_supported_camera", &common_camera_infos->max_supported_camera);
 	if (ret) {
-		probe_err("supported_cameraId read is fail(%d)", ret);
-	}
-
-	ret = of_property_read_u32_array(np, "supported_cameraId",
-		common_camera_infos->supported_camera_ids, common_camera_infos->max_supported_camera);
-	if (ret) {
-		probe_err("supported_cameraId read is fail(%d)", ret);
+		common_camera_infos->max_supported_camera = total_camera_num;
+		for (camera_num = 0; camera_num < total_camera_num; camera_num++) {
+			common_camera_infos->supported_camera_ids[camera_num] = camera_num;
+		}
+		ret = 0;
+	} else {
+		ret = of_property_read_u32_array(np, "supported_cameraId",
+			common_camera_infos->supported_camera_ids, common_camera_infos->max_supported_camera);
+		if (ret) {
+			probe_err("supported_cameraId read is fail(%d)", ret);
+			for (camera_num = 0; camera_num < common_camera_infos->max_supported_camera; camera_num++) {
+				common_camera_infos->supported_camera_ids[camera_num] = camera_num;
+			}
+			ret = 0;
+		}
 	}
 #endif
 
-	return ret;
+	return 0;
 }
 
 int fimc_is_vender_fw_prepare(struct fimc_is_vender *vender)
