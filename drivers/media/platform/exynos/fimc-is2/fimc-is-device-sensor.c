@@ -1288,6 +1288,8 @@ static int fimc_is_sensor_probe(struct platform_device *pdev)
 #ifdef CONFIG_OF
 	ret = fimc_is_sensor_parse_dt(pdev);
 	if (ret) {
+		if (ret == -ENODEV)
+			return -ENODEV;
 		err("parsing device tree is fail(%d)", ret);
 		goto p_err;
 	}
