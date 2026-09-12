@@ -1534,8 +1534,7 @@ int fimc_is_vender_set_torch(u32 aeflashMode, u32 frontFlashMode)
 	case AA_FLASHMODE_START: /*Pre flash mode*/
 	case AA_FLASHMODE_ON: /* Main flash Mode */
 #if defined(CONFIG_LEDS_S2MU005_FLASH) && defined(CONFIG_LEDS_SUPPORT_FRONT_FLASH)
-		if(frontFlashMode == CAM2_FLASH_MODE_LCD)
-			s2mu005_led_mode_ctrl(S2MU005_FLED_MODE_FLASH);
+		s2mu005_led_mode_ctrl(S2MU005_FLED_MODE_FLASH);
 #endif
 		break;
 	case AA_FLASHMODE_CAPTURE: /*Main flash mode*/
