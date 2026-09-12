@@ -312,8 +312,8 @@ int fimc_is_sensor_parse_dt(struct platform_device *pdev)
 
 	ret = of_property_read_u32(dnode, "id", &pdata->id);
 	if (ret) {
-		err("id read is fail(%d)", ret);
-		goto p_err;
+		info("%s: node '%s' has no id, skipping (%d)\n", __func__, dnode->name, ret);
+		return -ENODEV;
 	}
 
 	ret = of_property_read_u32(dnode, "scenario", &pdata->scenario);

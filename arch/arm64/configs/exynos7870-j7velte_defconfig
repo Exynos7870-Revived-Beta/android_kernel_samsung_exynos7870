@@ -42,7 +42,7 @@ CONFIG_BUILDTIME_EXTABLE_SORT=y
 CONFIG_INIT_ENV_ARG_LIMIT=32
 CONFIG_CROSS_COMPILE=""
 # CONFIG_COMPILE_TEST is not set
-CONFIG_LOCALVERSION="-SIMPLE-KERNEL_V1.0"
+CONFIG_LOCALVERSION="-ZephyrKernel"
 # CONFIG_LOCALVERSION_AUTO is not set
 CONFIG_DEFAULT_HOSTNAME="(none)"
 CONFIG_SWAP=y
@@ -467,7 +467,7 @@ CONFIG_CMDLINE_EXTEND=y
 # CONFIG_UH_RKP is not set
 # CONFIG_TIMA_TEST_INFRA is not set
 CONFIG_BUILD_ARM64_APPENDED_DTB_IMAGE=y
-CONFIG_BUILD_ARM64_APPENDED_DTB_IMAGE_NAMES="exynos7870-j7velte_sea_open_00 exynos7870-j7velte_sea_open_01 exynos7870-j7velte_sea_open_03"
+CONFIG_BUILD_ARM64_APPENDED_DTB_IMAGE_NAMES="exynos7870-j7velte_sea_open_00 exynos7870-j7velte_sea_open_01 exynos7870-j7velte_sea_open_03 exynos7870-j7velte_mea_open_00 exynos7870-j7velte_mea_open_01 exynos7870-j7velte_ltn_open_00 exynos7870-j7velte_ltn_open_01 exynos7870-j7velte_ltn_open_03"
 # CONFIG_EXYNOS_DTBTOOL is not set
 
 #

@@ -61,6 +61,10 @@
 					timeout = <15>; /* use gpio */
 				};
 			};
+
+			muic {
+				new_factory;
+			};
 		};
 	};
 /*

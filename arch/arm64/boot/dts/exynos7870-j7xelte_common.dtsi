@@ -835,6 +835,8 @@
 			use_module_check;
 
 			total_camera_num = <2>;
+			max_supported_camera = <2>;
+			supported_cameraId = <0 1>;
 			camera_info0 {				// 0 : rear
 				isp = <0>;				/* 0 : INT , 1 : EXT , 2 : SOC */
 				cal_memory = <2>;		/* 0 : N , 1 : FROM , 2 : EEPROM , 3 : OTP  */
