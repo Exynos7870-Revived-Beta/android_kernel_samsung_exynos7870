@@ -93,7 +93,7 @@ $(info -- KernelSU-Next version: $(KSU_VERSION))
 ccflags-y += -DKSU_VERSION=$(KSU_VERSION)
 else
 # If there is no .git directory, use default version
-KSU_VERSION_FALLBACK := 33193
+KSU_VERSION_FALLBACK := 33214
 $(info -- KernelSU-Next version fallback: $(KSU_VERSION_FALLBACK))
 ccflags-y += -DKSU_VERSION=$(KSU_VERSION_FALLBACK)
 endif
@@ -103,7 +103,7 @@ $(eval KSU_VERSION_TAG=$(KSU_GIT_TAG))
 $(info -- KernelSU-Next tag: $(KSU_VERSION_TAG))
 ccflags-y += -DKSU_VERSION_TAG=\"$(KSU_VERSION_TAG)\"
 else
-KSU_VERSION_TAG_FALLBACK := v3.2.0-legacy
+KSU_VERSION_TAG_FALLBACK := v3.3.0-legacy
 $(info -- KernelSU-Next tag fallback: $(KSU_VERSION_TAG_FALLBACK))
 ccflags-y += -DKSU_VERSION_TAG=\"$(KSU_VERSION_TAG_FALLBACK)\"
 endif
