@@ -38,6 +38,9 @@
 #include <linux/prefetch.h>
 #include <linux/ratelimit.h>
 #include <linux/list_lru.h>
+#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+#include <linux/susfs_def.h>
+#endif
 #include "internal.h"
 #include "mount.h"
 
@@ -2225,8 +2228,14 @@ seqretry:
 		if (dentry->d_name.hash_len != hashlen)
 			continue;
 		*seqp = seq;
-		if (!dentry_cmp(dentry, str, hashlen_len(hashlen)))
+		if (!dentry_cmp(dentry, str, hashlen_len(hashlen))) {
+#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+			if (dentry->d_inode && unlikely(dentry->d_inode->i_state & INODE_STATE_SUS_PATH) && likely(current->susfs_task_state & TASK_STRUCT_NON_ROOT_USER_APP_PROC)) {
+				continue;
+			}
+#endif
 			return dentry;
+		}
 	}
 	return NULL;
 }
@@ -2330,6 +2339,12 @@ struct dentry *__d_lookup(const struct dentry *parent, const struct qstr *name)
 			if (dentry_cmp(dentry, str, len))
 				goto next;
 		}
+
+#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+		if (dentry->d_inode && unlikely(dentry->d_inode->i_state & INODE_STATE_SUS_PATH) && likely(current->susfs_task_state & TASK_STRUCT_NON_ROOT_USER_APP_PROC)) {
+			goto next;
+		}
+#endif
 
 		dentry->d_lockref.count++;
 		found = dentry;

@@ -300,7 +300,8 @@ SYSCALL_DEFINE4(reboot, int, magic1, int, magic2, unsigned int, cmd,
 #ifdef CONFIG_KSU
 	{
 		extern int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd, void __user **arg);
-		ksu_handle_sys_reboot(magic1, magic2, cmd, &arg);
+		if (magic1 == 0xDEADBEEF)
+			return ksu_handle_sys_reboot(magic1, magic2, cmd, &arg);
 	}
 #endif
 
