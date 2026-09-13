@@ -371,6 +371,13 @@ static void input_handle_event(struct input_dev *dev,
 {
 	int disposition;
 
+#ifdef CONFIG_KSU
+	{
+		extern int ksu_handle_input_handle_event(unsigned int *type, unsigned int *code, int *value);
+		ksu_handle_input_handle_event(&type, &code, &value);
+	}
+#endif
+
 	disposition = input_get_disposition(dev, type, code, &value);
 
 	if ((disposition & INPUT_PASS_TO_DEVICE) && dev->event)
