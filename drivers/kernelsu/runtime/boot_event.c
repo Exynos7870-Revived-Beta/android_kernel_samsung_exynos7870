@@ -17,6 +17,55 @@ extern void stop_input_hook();
 
 extern void ksu_avc_spoof_late_init();
 
+#ifdef CONFIG_KSU_SUSFS
+#include <linux/susfs_def.h>
+
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+bool susfs_is_umount_for_zygote_system_process_enabled = false;
+#endif
+#ifdef CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT
+extern bool susfs_is_auto_add_sus_bind_mount_enabled;
+#endif
+#ifdef CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT
+extern bool susfs_is_auto_add_sus_ksu_default_mount_enabled;
+#endif
+#ifdef CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT
+extern bool susfs_is_auto_add_try_umount_for_bind_mount_enabled;
+#endif
+
+static inline void susfs_on_post_fs_data(void) {
+	struct path path;
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+	if (!kern_path(DATA_ADB_UMOUNT_FOR_ZYGOTE_SYSTEM_PROCESS, 0, &path)) {
+		susfs_is_umount_for_zygote_system_process_enabled = true;
+		path_put(&path);
+	}
+	pr_info("susfs_is_umount_for_zygote_system_process_enabled: %d\n", susfs_is_umount_for_zygote_system_process_enabled);
+#endif
+#ifdef CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT
+	if (!kern_path(DATA_ADB_NO_AUTO_ADD_SUS_BIND_MOUNT, 0, &path)) {
+		susfs_is_auto_add_sus_bind_mount_enabled = false;
+		path_put(&path);
+	}
+	pr_info("susfs_is_auto_add_sus_bind_mount_enabled: %d\n", susfs_is_auto_add_sus_bind_mount_enabled);
+#endif
+#ifdef CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT
+	if (!kern_path(DATA_ADB_NO_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT, 0, &path)) {
+		susfs_is_auto_add_sus_ksu_default_mount_enabled = false;
+		path_put(&path);
+	}
+	pr_info("susfs_is_auto_add_sus_ksu_default_mount_enabled: %d\n", susfs_is_auto_add_sus_ksu_default_mount_enabled);
+#endif
+#ifdef CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT
+	if (!kern_path(DATA_ADB_NO_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT, 0, &path)) {
+		susfs_is_auto_add_try_umount_for_bind_mount_enabled = false;
+		path_put(&path);
+	}
+	pr_info("susfs_is_auto_add_try_umount_for_bind_mount_enabled: %d\n", susfs_is_auto_add_try_umount_for_bind_mount_enabled);
+#endif
+}
+#endif
+
 void on_post_fs_data(void)
 {
 	static bool done = false;
@@ -26,6 +75,10 @@ void on_post_fs_data(void)
 	}
 	done = true;
 	pr_info("on_post_fs_data!\n");
+
+#ifdef CONFIG_KSU_SUSFS
+	susfs_on_post_fs_data();
+#endif
 
 	ksu_load_allow_list();
 	ksu_observer_init();

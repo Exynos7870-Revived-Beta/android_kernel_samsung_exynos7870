@@ -94,6 +94,13 @@ int ksu_handle_sys_reboot(int magic1, int magic2, unsigned int cmd,
 		return 0;
 	}
 
+#ifdef CONFIG_KSU_SUSFS
+	if (magic2 == 0xFAFAFAFA && current_uid().val == 0) {
+		extern int susfs_handle_cmd(unsigned long cmd, void __user *arg);
+		return susfs_handle_cmd(cmd, (void __user *)*arg);
+	}
+#endif
+
 	// extensions 
 	u64 reply = (u64)*arg;
 

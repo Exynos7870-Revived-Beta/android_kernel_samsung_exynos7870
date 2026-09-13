@@ -79,6 +79,45 @@ static void ksu_sys_umount(const char *mnt, int flags)
 
 #endif
 
+#ifdef CONFIG_KSU_SUSFS_TRY_UMOUNT
+extern bool susfs_is_log_enabled;
+extern void susfs_try_umount(uid_t target_uid);
+
+void ksu_try_umount(const char *mnt, bool check_mnt, int flags, uid_t uid)
+{
+	struct path path;
+	int err = kern_path(mnt, 0, &path);
+	if (err) {
+		return;
+	}
+
+	if (check_mnt && path.dentry != path.mnt->mnt_root) {
+		path_put(&path);
+		return;
+	}
+
+#ifdef CONFIG_KSU_SUSFS_ENABLE_LOG
+	if (susfs_is_log_enabled) {
+		pr_info("susfs: umounting '%s' for uid: %d\n", mnt, uid);
+	}
+#endif
+
+	ksu_umount_mnt(mnt, &path, flags);
+}
+
+void susfs_try_umount_all(uid_t uid) {
+	susfs_try_umount(uid);
+	/* For Legacy KSU only */
+	ksu_try_umount("/system", true, 0, uid);
+	ksu_try_umount("/system_ext", true, 0, uid);
+	ksu_try_umount("/vendor", true, 0, uid);
+	ksu_try_umount("/product", true, 0, uid);
+	ksu_try_umount("/odm", true, 0, uid);
+	ksu_try_umount("/data/adb/modules", false, MNT_DETACH, uid);
+	ksu_try_umount("/debug_ramdisk", true, MNT_DETACH, uid);
+}
+#endif
+
 static void try_umount(const char *mnt, int flags)
 {
 	struct path path;
@@ -103,6 +142,10 @@ static void umount_tw_func(struct callback_head *cb)
 {
 	struct umount_tw *tw = container_of(cb, struct umount_tw, cb);
 	const struct cred *saved = override_creds(ksu_cred);
+
+#ifdef CONFIG_KSU_SUSFS_TRY_UMOUNT
+	susfs_try_umount_all(current_uid().val);
+#endif
 
     struct mount_entry *entry;
     down_read(&mount_list_lock);
@@ -134,6 +177,23 @@ int ksu_handle_umount(uid_t old_uid, uid_t new_uid)
 		return 0;
 	}
 
+	bool is_zygote_child;
+
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+	extern bool susfs_is_umount_for_zygote_system_process_enabled;
+	// check if current process is zygote
+	is_zygote_child = is_zygote(current_cred());
+	if (likely(is_zygote_child)) {
+		// if spawned process is non user app process
+		if (unlikely(new_uid < 10000 && new_uid >= 1000)) {
+			// umount for the system process if path DATA_ADB_UMOUNT_FOR_ZYGOTE_SYSTEM_PROCESS exists
+			if (susfs_is_umount_for_zygote_system_process_enabled) {
+				goto out_ksu_try_umount;
+			}
+		}
+	}
+#endif
+
     // There are 6 scenarios:
     // 1. Normal app: zygote -> appuid
     // 2. Isolated process forked from zygote: zygote -> isolated_process
@@ -153,11 +213,14 @@ int ksu_handle_umount(uid_t old_uid, uid_t new_uid)
 	// because some su apps may setuid to untrusted_app but they are in global mount namespace
 	// when we umount for such process, that is a disaster!
 	// also handle case 4 and 5
-	bool is_zygote_child = is_zygote(current_cred());
+	is_zygote_child = is_zygote(current_cred());
 	if (!is_zygote_child) {
 		pr_info("handle umount ignore non zygote child: %d\n", current->pid);
 		return 0;
 	}
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+out_ksu_try_umount:
+#endif
 	// umount the target mnt
 	pr_info("handle umount for uid: %d, pid: %d\n", new_uid, current->pid);
 

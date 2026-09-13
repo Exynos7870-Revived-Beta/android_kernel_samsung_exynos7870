@@ -99,6 +99,10 @@ int __init kernelsu_init(void)
         pr_err("prepare cred failed!\n");
     }
 
+#ifdef CONFIG_KSU_SUSFS
+    susfs_init();
+#endif
+
 	ksu_feature_init();
 
 	ksu_sulog_init();

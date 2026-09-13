@@ -144,6 +144,10 @@ static int apply_kernelsu_rules_fn(void *ptr)
     ksu_allow(db, "init", KERNEL_SU_DOMAIN, ALL, ALL);
     // we need to umount modules in zygote
     ksu_allow(db, "zygote", "adb_data_file", "dir", "search");
+#ifdef CONFIG_KSU_SUSFS
+    // Allow umount in zygote process without installing zygisk
+    ksu_allow(db, "zygote", "labeledfs", "filesystem", "unmount");
+#endif
 
     // copied from Magisk rules
     // suRights
@@ -271,6 +275,9 @@ do_stop_machine:
 out_flush:
 	smp_mb();
 	reset_avc_cache();
+#ifdef CONFIG_KSU_SUSFS
+	susfs_set_batch_sid();
+#endif
 #endif
 }
 
