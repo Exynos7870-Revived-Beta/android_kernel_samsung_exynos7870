@@ -3,10 +3,6 @@
 
 #include <linux/version.h>
 
-#ifndef __nocfi
-#define __nocfi
-#endif
-
 #if defined(__aarch64__)
 
 #define __PT_PARM1_REG regs[0]
@@ -26,6 +22,7 @@
 #define REBOOT_SYMBOL "__arm64_sys_reboot"
 #define SYS_READ_SYMBOL "__arm64_sys_read"
 #define SYS_EXECVE_SYMBOL "__arm64_sys_execve"
+#define SYS_EXECVEAT_SYMBOL "__arm64_sys_execveat"
 #define SYS_SETNS_SYMBOL __arm64_sys_setns
 // https://cs.android.com/android/kernel/superproject/+/common-android-mainline:common/scripts/syscalltbl.sh;l=57;drc=9142be9e6443fd641ca37f820efe00d9cd890eb1
 // https://cs.android.com/android/kernel/superproject/+/common-android-mainline:common/scripts/syscall.tbl;l=104;drc=b36d4b6aa88ef039647228b98c59a875e92f8c8e
@@ -34,6 +31,7 @@
 #define REBOOT_SYMBOL "sys_reboot"
 #define SYS_READ_SYMBOL "sys_read"
 #define SYS_EXECVE_SYMBOL "sys_execve"
+#define SYS_EXECVEAT_SYMBOL "sys_execveat"
 #define SYS_SETNS_SYMBOL sys_setns
 #define SYS_FSTAT_SYMBOL "sys_newfstat"
 #endif
@@ -58,12 +56,14 @@
 #define REBOOT_SYMBOL "__x64_sys_reboot"
 #define SYS_READ_SYMBOL "__x64_sys_read"
 #define SYS_EXECVE_SYMBOL "__x64_sys_execve"
+#define SYS_EXECVEAT_SYMBOL "__x64_sys_execveat"
 #define SYS_SETNS_SYMBOL __x64_sys_setns
 #define SYS_FSTAT_SYMBOL "__x64_sys_newfstat"
 #else
 #define REBOOT_SYMBOL "sys_reboot"
 #define SYS_READ_SYMBOL "sys_read"
 #define SYS_EXECVE_SYMBOL "sys_execve"
+#define SYS_EXECVEAT_SYMBOL "sys_execveat"
 #define SYS_SETNS_SYMBOL sys_setns
 #define SYS_FSTAT_SYMBOL "sys_newfstat"
 #endif

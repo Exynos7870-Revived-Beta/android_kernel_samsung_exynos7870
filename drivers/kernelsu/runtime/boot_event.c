@@ -3,17 +3,17 @@
 #include <linux/namei.h>
 #include <linux/printk.h>
 
+#include "feature/selinux_hide.h"
+
 #include "policy/allowlist.h"
 #include "klog.h" // IWYU pragma: keep
 #include "runtime/ksud_boot.h"
 #include "runtime/ksud.h"
 #include "manager/manager_observer.h"
 #include "manager/throne_tracker.h"
-#include "selinux/selinux.h"
 
 bool ksu_module_mounted __read_mostly = false;
 bool ksu_boot_completed __read_mostly = false;
-extern void stop_input_hook();
 
 extern void ksu_avc_spoof_late_init();
 
@@ -83,9 +83,12 @@ void on_post_fs_data(void)
 	ksu_load_allow_list();
 	ksu_observer_init();
 	// sanity check, this may influence the performance
-	stop_input_hook();
+	ksu_stop_input_hook_runtime();
+	ksu_selinux_hide_handle_post_fs_data();
 }
 
+#include <linux/version.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0)
 extern void ext4_unregister_sysfs(struct super_block *sb);
 
 int nuke_ext4_sysfs(const char *mnt)
@@ -105,12 +108,16 @@ int nuke_ext4_sysfs(const char *mnt)
 		return -EINVAL;
 	}
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0)
 	ext4_unregister_sysfs(sb);
-#endif
 	path_put(&path);
 	return 0;
 }
+#else
+int nuke_ext4_sysfs(const char *mnt)
+{
+	return 0;
+}
+#endif
 
 void on_module_mounted(void)
 {
@@ -123,5 +130,6 @@ void on_boot_completed(void)
     ksu_boot_completed = true;
     pr_info("on_boot_completed!\n");
     track_throne(true);
+    ksu_selinux_hide_drop_backup_if_unused();
     ksu_avc_spoof_late_init();
 }

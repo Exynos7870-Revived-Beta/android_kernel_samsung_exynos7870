@@ -106,6 +106,10 @@ static inline ssize_t __strscpy_pad(char *dest, const char *src, size_t count)
 #endif
 }
 
+#ifndef strscpy_pad
+#define strscpy_pad __strscpy_pad
+#endif
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
 #define ksu_access_ok(addr, size) access_ok(addr, size)
 #else
@@ -145,6 +149,10 @@ static inline bool d_is_reg(const struct dentry *dentry)
 
 #ifndef ALIGN_DOWN
 #define ALIGN_DOWN(x, a) ((x) & ~((typeof(x))(a) - 1))
+#endif
+
+#ifndef __nocfi
+#define __nocfi
 #endif
 
 #endif // #ifndef __KSU_H_KERNEL_COMPAT

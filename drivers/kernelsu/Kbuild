@@ -87,26 +87,39 @@ endif
 
 # Calculate version if git version is available
 ifdef KSU_GIT_VERSION_VALID
-# ksu_version: major * 30000 + git version for historical reasons
-$(eval KSU_VERSION=$(shell expr 30000 + $(KSU_GIT_VERSION) + 200))
+$(eval KSU_VERSION=$(shell expr 30000 + $(KSU_GIT_VERSION) + 289))
 $(info -- KernelSU-Next version: $(KSU_VERSION))
-ccflags-y += -DKSU_VERSION=$(KSU_VERSION)
 else
 # If there is no .git directory, use default version
-KSU_VERSION_FALLBACK := 33214
+KSU_VERSION_FALLBACK := 33294
 $(info -- KernelSU-Next version fallback: $(KSU_VERSION_FALLBACK))
-ccflags-y += -DKSU_VERSION=$(KSU_VERSION_FALLBACK)
+KSU_VERSION := $(KSU_VERSION_FALLBACK)
 endif
+
+# Allow integrators to pin the reported version (e.g. when backporting
+# onto release branches where the commit count does not match releases)
+# legacy: keep version derived from commit count, with a +289 offset so
+# the reported ksuver stays in line with the manager versionCode
+# (maintainer preference, #1549)
+ifdef KSU_VERSION_OVERRIDE
+KSU_VERSION := $(KSU_VERSION_OVERRIDE)
+$(info -- KernelSU-Next version override: $(KSU_VERSION))
+endif
+ccflags-y += -DKSU_VERSION=$(KSU_VERSION)
 
 ifdef KSU_GIT_VERSION_VALID
 $(eval KSU_VERSION_TAG=$(KSU_GIT_TAG))
+else
+KSU_VERSION_TAG_FALLBACK := v3.4.0-legacy
+KSU_VERSION_TAG := $(KSU_VERSION_TAG_FALLBACK)
+endif
+
+ifdef KSU_VERSION_TAG_OVERRIDE
+KSU_VERSION_TAG := $(KSU_VERSION_TAG_OVERRIDE)
+endif
+
 $(info -- KernelSU-Next tag: $(KSU_VERSION_TAG))
 ccflags-y += -DKSU_VERSION_TAG=\"$(KSU_VERSION_TAG)\"
-else
-KSU_VERSION_TAG_FALLBACK := v3.3.0-legacy
-$(info -- KernelSU-Next tag fallback: $(KSU_VERSION_TAG_FALLBACK))
-ccflags-y += -DKSU_VERSION_TAG=\"$(KSU_VERSION_TAG_FALLBACK)\"
-endif
 
 ifndef KSU_NEXT_MANAGER_SIZE
 KSU_NEXT_MANAGER_SIZE := 0x3e6
@@ -124,7 +137,7 @@ endif
 $(info -- KernelSU-Next Manager signature size: $(KSU_NEXT_MANAGER_SIZE))
 $(info -- KernelSU-Next Manager signature hash: $(KSU_NEXT_MANAGER_HASH))
 
-# RKSU: checks for available hook
+# KSU: checks for available hook
 ## Logic flipped for HAVE_KSU_HOOK: 0 is success, 1 is failure
 HAVE_KSU_HOOK ?= 1
 
@@ -134,6 +147,15 @@ $(info -- KernelSU-Next: Hook mode: Kprobes)
 ccflags-y += -DKSU_KPROBES_HOOK
 # Let's make it 0, so it would pass.
 HAVE_KSU_HOOK := 0
+endif
+
+ifeq ($(CONFIG_KSU_SYSCALL_TABLE_HOOK), y)
+$(info -- KernelSU-Next: Hook mode: Syscall table patching)
+ccflags-y += -DKSU_SYSCALL_TABLE_HOOK
+HAVE_KSU_HOOK := 0
+kernelsu-objs += hook/patch_memory.o
+kernelsu-objs += hook/syscall_table_hook.o
+kernelsu-objs += infra/symbol_resolver.o
 endif
 
 ifeq ($(CONFIG_KSU_MANUAL_HOOK), y)
