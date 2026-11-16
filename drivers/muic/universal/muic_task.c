@@ -82,6 +82,28 @@
 
 static muic_data_t *tmp_pmuic;
 extern struct muic_platform_data muic_pdata;
+
+#if defined(CONFIG_VBUS_NOTIFIER)
+static void muic_handle_vbus(muic_data_t *pmuic)
+{
+	vbus_status_t status;
+
+	status = pmuic->vps.s.vbvolt ? STATUS_VBUS_HIGH: STATUS_VBUS_LOW;
+
+	pr_info("%s:%s <%d>\n", MUIC_DEV_NAME, __func__, status);
+
+	vbus_notifier_handle(status);
+
+	return;
+}
+#else
+static void muic_handle_vbus(muic_data_t *pmuic)
+{
+	pr_info("%s:%s <%d> Not implemented.\n", MUIC_DEV_NAME,
+			__func__, pmuic->vps.t.vbvolt);
+}
+#endif
+
 #if defined(CONFIG_MUIC_UNIVERSAL_SM5705_AFC)
 /* SM5705 Interrupt 3  AFC register */
 #define INT3_AFC_ERROR_SHIFT         5
@@ -195,26 +217,6 @@ static int muic_irq_handler_afc(muic_data_t *pmuic, int irq)
 	return INT_REQ_DONE;
 }
 #else
-#if defined(CONFIG_VBUS_NOTIFIER)
-static void muic_handle_vbus(muic_data_t *pmuic)
-{
-	vbus_status_t status;
-
-	status = pmuic->vps.s.vbvolt ? STATUS_VBUS_HIGH: STATUS_VBUS_LOW;
-
-	pr_info("%s:%s <%d>\n", MUIC_DEV_NAME, __func__, status);
-
-	vbus_notifier_handle(status);
-
-	return;
-}
-#else
-static void muic_handle_vbus(muic_data_t *pmuic)
-{
-	pr_info("%s:%s <%d> Not implemented.\n", MUIC_DEV_NAME,
-			__func__, pmuic->vps.t.vbvolt);
-}
-#endif
 
 static int muic_irq_handler(muic_data_t *pmuic, int irq)
 {
