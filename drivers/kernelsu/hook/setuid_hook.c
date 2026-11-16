@@ -27,8 +27,6 @@
 #include <linux/susfs.h>
 #endif
 
-extern void disable_seccomp(struct task_struct *tsk);
-
 int ksu_handle_setresuid(uid_t old_uid, uid_t new_uid)
 {
     // we rely on the fact that zygote always call setresuid(3) with same uids
@@ -42,7 +40,7 @@ int ksu_handle_setresuid(uid_t old_uid, uid_t new_uid)
             ksu_seccomp_allow_cache(current->seccomp.filter, __NR_reboot);
         }
 #else
-		disable_seccomp(current);
+		disable_seccomp();
 #endif
 
 #ifdef KSU_KPROBES_HOOK
@@ -60,7 +58,7 @@ int ksu_handle_setresuid(uid_t old_uid, uid_t new_uid)
             ksu_seccomp_allow_cache(current->seccomp.filter, __NR_reboot);
         }
 #else
-		disable_seccomp(current);
+		disable_seccomp();
 #endif
 
 #ifdef KSU_KPROBES_HOOK
