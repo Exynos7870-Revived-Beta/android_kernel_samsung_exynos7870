@@ -1014,7 +1014,7 @@ static int panel_read_bit_info(struct lcd_info *lcd, u32 index, u8 *rxbuf)
 	return ret;
 }
 
-static int s6e3fa3_read_rddpm(struct lcd_info *lcd)
+static int __maybe_unused s6e3fa3_read_rddpm(struct lcd_info *lcd)
 {
 	int ret = 0;
 
@@ -1025,7 +1025,7 @@ static int s6e3fa3_read_rddpm(struct lcd_info *lcd)
 	return ret;
 }
 
-static int s6e3fa3_read_rddsm(struct lcd_info *lcd)
+static int __maybe_unused s6e3fa3_read_rddsm(struct lcd_info *lcd)
 {
 	int ret = 0;
 
