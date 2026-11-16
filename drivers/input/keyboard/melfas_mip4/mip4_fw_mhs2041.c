@@ -11,11 +11,10 @@
 #include "mip4.h"
 
 //Firmware Info
-#ifdef CONFIG_KEYBOARD_MELFAS_MHS2041
-#define FW_CHIP_CODE	"H2H1"
-#endif
-#ifdef CONFIG_KEYBOARD_MELFAS_MHS2041B
+#if defined(CONFIG_KEYBOARD_MELFAS_MHS2041B)
 #define FW_CHIP_CODE	"H2HS"
+#elif defined(CONFIG_KEYBOARD_MELFAS_MHS2041)
+#define FW_CHIP_CODE	"H2H1"
 #endif
 
 #define FW_TYPE_TAIL

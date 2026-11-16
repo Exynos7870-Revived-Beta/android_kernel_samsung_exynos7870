@@ -11,11 +11,10 @@
 #include "mip4.h"
 
 //Firmware Info
-#ifdef CONFIG_KEYBOARD_MELFAS_MHS204
-#define FW_CHIP_CODE	"H2H0"
-#endif
-#ifdef CONFIG_KEYBOARD_MELFAS_MHS204G
+#if defined(CONFIG_KEYBOARD_MELFAS_MHS204G)
 #define FW_CHIP_CODE	"H2HG"
+#elif defined(CONFIG_KEYBOARD_MELFAS_MHS204)
+#define FW_CHIP_CODE	"H2H0"
 #endif
 
 #define FW_TYPE_TAIL
